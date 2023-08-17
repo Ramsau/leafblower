@@ -15,6 +15,10 @@
 #define ENDU_POWER 80
 #define FULL_POWER 1000
 
+#define OFF_ANGLE 0
+#define ENDU_ANGLE 14
+#define FULL_ANGLE 180
+
 Servo edfLeft;
 Servo edfRight;
 Servo ledBuiltin;
