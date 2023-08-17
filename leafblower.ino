@@ -3,23 +3,24 @@
 #define EDF_LEFT 5
 #define EDF_RIGHT 6
 
-#define POWER_PIN 8
+#define OFF_PIN 8
+#define FULLPOWER_PIN 9
 
-
-#define RAMP_TIME 1000
-#define LOOP_DELAY 100
+#define LOOP_STEP 50
+#define LOOP_DELAY 50
 
 #define ZERO 1000
 // 0-1000
-#define LOW_POWER 0
+#define OFF_POWER 0
+#define ENDU_POWER 80
 #define FULL_POWER 1000
 
 Servo edfLeft;
 Servo edfRight;
 Servo ledBuiltin;
 
-int current_value = LOW_POWER;
-int target_value = LOW_POWER;
+int current_value = OFF_POWER;
+int target_value = OFF_POWER;
 
 void setAll() {
   edfLeft.writeMicroseconds(current_value + ZERO);
@@ -33,17 +34,23 @@ void setup() {
   ledBuiltin.attach(LED_BUILTIN);
   setAll();
 
-  pinMode(POWER_PIN, INPUT);
+  pinMode(OFF_PIN, INPUT_PULLUP);
+  pinMode(FULLPOWER_PIN, INPUT_PULLUP);
 }
 
 void loop() {
-  bool input = digitalRead(POWER_PIN);
-  target_value = input ? FULL_POWER : LOW_POWER;
+  if (digitalRead(OFF_PIN) == LOW) {
+    target_value = OFF_POWER;
+  } else if (digitalRead(FULLPOWER_PIN) == LOW) {
+    target_value = FULL_POWER;
+  } else {
+    target_value = ENDU_POWER;
+  }
   if (current_value < target_value) {
-    current_value += 1000 * RAMP_TIME / LOOP_DELAY;
+    current_value += LOOP_STEP ;
     current_value = min(current_value, target_value);
   } else if (current_value > target_value) {
-    current_value -= 1000 * RAMP_TIME / LOOP_DELAY;
+    current_value -= LOOP_STEP;
     current_value = max(current_value, target_value);
   }
   setAll();
